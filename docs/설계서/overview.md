@@ -1,0 +1,45 @@
+Agent
+>> multi host(tls tcp) and local host 지원 (docker.sock)
+-docker_service
+ *done
+ > docker sdk구현
+ > 컨테이너 정보 수집 (tls로 접근하여 수집)
+ > host다이렉트 컨테이저 정보 api 제공
+   >> container list
+   >> resouce 이용정보
+   >> event
+   >> stats
+
+
+-pipeline추가
+ > container list 정보 수집
+ > inspect 정보 수집
+ / app 패키지에서 생성 및 start
+ > buffer channel 관리(ring buffer) -> 버퍼가 가득 차면 → 가장 오래된 메시지 제거 → 새 메시지 추가
+
+ --> apiserver동일한 구조로 리팩토링
+    Application
+    ├── ApiServer (api.Server)
+    └── PipeServer (pipe.Server)
+
+ *todo
+ > agent -> saas  outbound연결 (https rest or grpc)
+   >> 컨테이너 상태, 이벤트, 리소스 사용량, 로그 등
+
+
+
+-auth_service
+ > 사용자 등록/로그인/로그아웃
+ > 토큰 발급 / 갱신
+
+-api-gateway
+ > api gateway
+ > request api 인증
+
+
+
+
+ SS
+ - 인증 (agent 토큰 발급)
+ - 수집 데이터 저장
+ - 시각화 정보 제공
