@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package pb;
+
+
+
+option go_package = "anget_service/pb";
+
+import "rpc_message.proto";
+import "server_message.proto";
+import "test_message.proto";
+
+service HelloService{
+    // client stream
+    rpc ConnMessage(stream Hello) returns (stream Hello);
+    rpc DataStream(stream AgentMessage) returns (stream ServerMessage);
+
+    // unary
+    rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
+}

@@ -1,5 +1,0 @@
--container list
--control (start & stop)
--resource 
--stats
--event
