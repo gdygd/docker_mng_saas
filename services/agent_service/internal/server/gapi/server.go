@@ -38,7 +38,7 @@ type Job_ConnMessage struct {
 
 type Server struct {
 	wg *sync.WaitGroup
-	pb.UnimplementedHelloServiceServer
+	pb.UnimplementedContainerServiceServer
 	gServer      *grpc.Server
 	rServer      *http.Server
 	router       *gin.Engine
@@ -85,7 +85,7 @@ func NewServer(wg *sync.WaitGroup, ct *container.Container, ch_terminate chan bo
 			GrpcServerLogger,
 		),
 	)
-	pb.RegisterHelloServiceServer(grpcServer, server)
+	pb.RegisterContainerServiceServer(grpcServer, server)
 	reflection.Register(grpcServer)
 
 	server.gServer = grpcServer

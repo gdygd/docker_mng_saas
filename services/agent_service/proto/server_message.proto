@@ -3,7 +3,7 @@ syntax = "proto3";
 package pb;
 
 
-option go_package = "anget_service/pb";
+option go_package = "agent_service/pb";
 
 enum CommandType {
     ACK = 0;

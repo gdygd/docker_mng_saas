@@ -1201,7 +1201,7 @@ const file_container_message_proto_rawDesc = "" +
 	"\x0eCONTAINER_LIST\x10\x00\x12\x15\n" +
 	"\x11CONTAINER_INSPECT\x10\x01\x12\x13\n" +
 	"\x0fCONTAINER_STATS\x10\x02\x12\x13\n" +
-	"\x0fCONTAINER_EVENT\x10\x03B\x12Z\x10anget_service/pbb\x06proto3"
+	"\x0fCONTAINER_EVENT\x10\x03B\x12Z\x10agent_service/pbb\x06proto3"
 
 var (
 	file_container_message_proto_rawDescOnce sync.Once

@@ -7,11 +7,12 @@
 package pb
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -146,7 +147,7 @@ const file_server_message_proto_rawDesc = "" +
 	"\x03ACK\x10\x00\x12\x13\n" +
 	"\x0fSTART_CONTAINER\x10\x01\x12\x12\n" +
 	"\x0eSTOP_CONTAINER\x10\x02\x12\x15\n" +
-	"\x11RESTART_CONTAINER\x10\x03B\x12Z\x10anget_service/pbb\x06proto3"
+	"\x11RESTART_CONTAINER\x10\x03B\x12Z\x10agent_service/pbb\x06proto3"
 
 var (
 	file_server_message_proto_rawDescOnce sync.Once
@@ -160,12 +161,14 @@ func file_server_message_proto_rawDescGZIP() []byte {
 	return file_server_message_proto_rawDescData
 }
 
-var file_server_message_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_server_message_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_server_message_proto_goTypes = []any{
-	(CommandType)(0),      // 0: pb.CommandType
-	(*ServerMessage)(nil), // 1: pb.ServerMessage
-}
+var (
+	file_server_message_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_server_message_proto_msgTypes  = make([]protoimpl.MessageInfo, 1)
+	file_server_message_proto_goTypes   = []any{
+		(CommandType)(0),      // 0: pb.CommandType
+		(*ServerMessage)(nil), // 1: pb.ServerMessage
+	}
+)
 var file_server_message_proto_depIdxs = []int32{
 	0, // 0: pb.ServerMessage.command:type_name -> pb.CommandType
 	1, // [1:1] is the sub-list for method output_type

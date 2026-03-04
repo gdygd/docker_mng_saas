@@ -4,7 +4,7 @@ package pb;
 
 import "container_message.proto";
 
-option go_package = "anget_service/pb";
+option go_package = "agent_service/pb";
 
 // message 정의
 message Hello {

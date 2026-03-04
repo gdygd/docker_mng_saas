@@ -9,7 +9,34 @@ import (
 	"agent-service/pb"
 )
 
-func (s *Server) ConnMessage(stream pb.HelloService_ConnMessageServer) error {
+func (s *Server) DataStream(stream pb.ContainerService_DataStreamServer) error {
+	logger.Log.Print(2, "DataStream...!")
+	req, err := stream.Recv()
+	if err == io.EOF {
+		log.Println("client closed stream")
+		return err
+	}
+	if err != nil {
+		log.Printf("receive error: %v", err)
+		return err
+	}
+	log.Printf("From client: %v", req)
+
+	msg := &pb.ServerMessage{
+		Command:         pb.CommandType_ACK,
+		TargetContainer: "",
+		Host:            "1",
+	}
+
+	if err := stream.Send(msg); err != nil {
+		log.Printf("send error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *Server) ConnMessage(stream pb.ContainerService_ConnMessageServer) error {
 	// 채널 생성
 	clientMsgs := make(chan *pb.Hello)
 
