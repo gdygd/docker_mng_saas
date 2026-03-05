@@ -7,12 +7,11 @@
 package pb
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -246,18 +245,16 @@ func file_rpc_message_proto_rawDescGZIP() []byte {
 	return file_rpc_message_proto_rawDescData
 }
 
-var (
-	file_rpc_message_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_rpc_message_proto_goTypes  = []any{
-		(*Hello)(nil),                // 0: pb.Hello
-		(*AgentMessage)(nil),         // 1: pb.AgentMessage
-		(DataType)(0),                // 2: pb.DataType
-		(*ContainerListData)(nil),    // 3: pb.ContainerListData
-		(*ContainerInspectData)(nil), // 4: pb.ContainerInspectData
-		(*ContainerStatsData)(nil),   // 5: pb.ContainerStatsData
-		(*ContainerEventData)(nil),   // 6: pb.ContainerEventData
-	}
-)
+var file_rpc_message_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_rpc_message_proto_goTypes = []any{
+	(*Hello)(nil),                // 0: pb.Hello
+	(*AgentMessage)(nil),         // 1: pb.AgentMessage
+	(DataType)(0),                // 2: pb.DataType
+	(*ContainerListData)(nil),    // 3: pb.ContainerListData
+	(*ContainerInspectData)(nil), // 4: pb.ContainerInspectData
+	(*ContainerStatsData)(nil),   // 5: pb.ContainerStatsData
+	(*ContainerEventData)(nil),   // 6: pb.ContainerEventData
+}
 var file_rpc_message_proto_depIdxs = []int32{
 	2, // 0: pb.AgentMessage.type:type_name -> pb.DataType
 	3, // 1: pb.AgentMessage.list_data:type_name -> pb.ContainerListData

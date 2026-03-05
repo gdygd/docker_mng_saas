@@ -7,12 +7,11 @@
 package pb
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -161,14 +160,12 @@ func file_server_message_proto_rawDescGZIP() []byte {
 	return file_server_message_proto_rawDescData
 }
 
-var (
-	file_server_message_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_server_message_proto_msgTypes  = make([]protoimpl.MessageInfo, 1)
-	file_server_message_proto_goTypes   = []any{
-		(CommandType)(0),      // 0: pb.CommandType
-		(*ServerMessage)(nil), // 1: pb.ServerMessage
-	}
-)
+var file_server_message_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_server_message_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_server_message_proto_goTypes = []any{
+	(CommandType)(0),      // 0: pb.CommandType
+	(*ServerMessage)(nil), // 1: pb.ServerMessage
+}
 var file_server_message_proto_depIdxs = []int32{
 	0, // 0: pb.ServerMessage.command:type_name -> pb.CommandType
 	1, // [1:1] is the sub-list for method output_type

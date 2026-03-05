@@ -1,0 +1,19 @@
+~26.03.03
+auth-service, agent-service 추가
+
+26.03.04
+-grpc서버 추가
+-grpc 서비스 구현 & 테스트
+
+
+26.03.05
+-rpc서비스 분리 (list, inspect, stats, event)
+-pb message parse
+
+
+todo
+-rpc 테스트
+-api gateway 추가
+-전체 실행후 테스트
+-서비스 컨테이너 화
+-aws배포
