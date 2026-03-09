@@ -7,4 +7,4 @@ import (
 // //---------------------------------------------------------------------------
 // // Log
 // //---------------------------------------------------------------------------
-var Log *goglib.OLog2 = goglib.InitLogEnv("./log", "agent", 1) // level 1~9, agent-service
+var Log *goglib.OLog2 = goglib.InitLogEnv("./log", "agent", 2) // level 1~9, agent-service

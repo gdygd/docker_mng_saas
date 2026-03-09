@@ -10,6 +10,10 @@ auth-service, agent-service 추가
 -rpc서비스 분리 (list, inspect, stats, event)
 -pb message parse
 
+26.03.09
+-rpc 메시지 수정
+-rpc 메시지 테스트 (ContainerInfo, ContainerInspect, ContainerStats)
+
 
 todo
 -rpc 테스트
