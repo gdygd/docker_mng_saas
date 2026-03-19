@@ -7,6 +7,10 @@ import (
 	pb "agent-service/pb"
 )
 
+const (
+	HOST_ID = 1
+)
+
 func (server *Server) ContainerState(ctx context.Context, req *pb.AgentMessage) (*pb.ServerMessage, error) {
 	logger.Log.Print(2, "rpc ContainerState")
 	logger.Log.Print(2, "type : %v, host : %v", req.GetType(), req.GetHost())
@@ -21,17 +25,26 @@ func (server *Server) ContainerState(ctx context.Context, req *pb.AgentMessage) 
 }
 
 func (server *Server) ContainerInfo(ctx context.Context, req *pb.AgentMessage) (*pb.ServerMessage, error) {
-	logger.Log.Print(1, "rpc ContainerInfo")
-	logger.Log.Print(1, "type : %v, host : %v", req.GetType(), req.GetHost())
+	logger.Log.Print(2, "rpc ContainerInfo...")
+	logger.Log.Print(2, "type : %v, host : %v", req.GetType(), req.GetHost())
 	logger.Log.Print(1, "data : %v", req.GetData())
 
 	agentMsg := parseAgentMessage(req)
 	_ = agentMsg
 
 	for i, c := range agentMsg.ListData.Containers {
-		logger.Log.Print(1, "(%d) ID: %s, Name : %s, Img : %s, State :%s, Stt: %s",
+		logger.Log.Print(2, "(%d) ID: %s, Name : %s, Img : %s, State :%s, Stt: %s",
 			i, c.ID, c.Name, c.Image, c.State, c.Status)
 	}
+
+	logger.Log.Print(2, "rpc ContainerInfo...2")
+
+	err := server.service.CreateContainerInfo(ctx, agentMsg.ListData, HOST_ID)
+	if err != nil {
+		logger.Log.Error("CreateContainerInfo error.. :%v", err)
+	}
+
+	logger.Log.Print(2, "rpc ContainerInfo...3")
 
 	rsp := &pb.ServerMessage{}
 
@@ -41,49 +54,48 @@ func (server *Server) ContainerInfo(ctx context.Context, req *pb.AgentMessage) (
 func (server *Server) ContainerInspect(ctx context.Context, req *pb.AgentMessage) (*pb.ServerMessage, error) {
 	logger.Log.Print(1, "rpc ContainerInspect")
 	logger.Log.Print(1, "type : %v, host : %v", req.GetType(), req.GetHost())
-	logger.Log.Print(1, "data : %v", req.GetData())
 
 	agentMsg := parseAgentMessage(req)
-	_ = agentMsg
 
 	for i, c := range agentMsg.InspectData.Inspects {
 		logger.Log.Print(1, "(%d) ID: %s, Name : %s, Img : %s, Created :%s, Platform: %s, restart : %d, Status:%s, host : %s, ip:%s",
 			i, c.ID, c.Name, c.Image, c.Created, c.Platform, c.RestartCount, c.State.Status, c.Config.Hostname, c.Network.IPAddress)
 	}
 
-	rsp := &pb.ServerMessage{}
+	if err := server.service.CreateContainerInspect(ctx, agentMsg.InspectData, HOST_ID); err != nil {
+		logger.Log.Error("CreateContainerInspect error: %v", err)
+	}
 
-	return rsp, nil
+	return &pb.ServerMessage{}, nil
 }
 
 func (server *Server) ContainerStats(ctx context.Context, req *pb.AgentMessage) (*pb.ServerMessage, error) {
 	logger.Log.Print(2, "rpc ContainerStats")
 	logger.Log.Print(2, "type : %v, host : %v", req.GetType(), req.GetHost())
-	logger.Log.Print(2, "data : %v", req.GetData())
 
 	agentMsg := parseAgentMessage(req)
-	_ = agentMsg
 
 	for i, c := range agentMsg.StatsData.Stats {
 		logger.Log.Print(2, "(%d) ID: %s, Name : %s, cpu:%.2f, memU:%d memL : %d, memP:%.2f, rx:%d, tx:%d",
 			i, c.ID, c.Name, c.CPUPercent, c.MemoryUsage, c.MemoryLimit, c.MemoryPercent, c.NetworkRx, c.NetworkTx)
 	}
 
-	rsp := &pb.ServerMessage{}
+	if err := server.service.CreateContainerStats(ctx, agentMsg.StatsData, HOST_ID); err != nil {
+		logger.Log.Error("CreateContainerStats error: %v", err)
+	}
 
-	return rsp, nil
+	return &pb.ServerMessage{}, nil
 }
 
 func (server *Server) ContainerEvent(ctx context.Context, req *pb.AgentMessage) (*pb.ServerMessage, error) {
-	// logger.Log.Print(2, "rpc ContainerEvent")
-
-	// logger.Log.Print(2, "type : %v, host : %v", req.GetType(), req.GetHost())
-	// logger.Log.Print(2, "data : %v", req.GetData())
-
 	agentMsg := parseAgentMessage(req)
-	_ = agentMsg
 
-	rsp := &pb.ServerMessage{}
+	logger.Log.Print(2, "rpc ContainerEvent type:%s action:%s actor:%s",
+		agentMsg.EventData.Type, agentMsg.EventData.Action, agentMsg.EventData.ActorID)
 
-	return rsp, nil
+	if err := server.service.CreateContainerEvent(ctx, agentMsg.EventData, HOST_ID); err != nil {
+		logger.Log.Error("CreateContainerEvent error: %v", err)
+	}
+
+	return &pb.ServerMessage{}, nil
 }

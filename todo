@@ -1,0 +1,14 @@
+-stats 최신상태 관리 테이블 생성
+-event 최신상태 관리 테이블 생성
+-erd 수정
+ container id 32-> 64
+
+-event grpc 확인
+-프론트 api구현
+
+
+-rpc 테스트 (event)
+-api gateway 추가
+-전체 실행후 테스트
+-서비스 컨테이너 화
+-aws배포

@@ -17,7 +17,7 @@ import (
 	"agent-service/internal/memory"
 	"agent-service/internal/service"
 
-	apiserv "agent-service/internal/service/api"
+	rpcserv "agent-service/internal/service/api"
 	pb "agent-service/pb"
 
 	"github.com/gdygd/goglib/token"
@@ -57,7 +57,8 @@ type Server struct {
 }
 
 func NewServer(wg *sync.WaitGroup, ct *container.Container, ch_terminate chan bool) (*Server, error) {
-	apiservice := apiserv.NewApiService(ct.DbHnd, ct.ObjDb)
+	// apiservice := apiserv.NewApiService(ct.DbHnd, ct.ObjDb)
+	rpcservice := rpcserv.NewRpcService(ct.DbHnd, ct.ObjDb)
 	tokenMaker, err := token.NewJWTMaker(ct.Config.TokenSecretKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker:%w", err)
@@ -68,7 +69,7 @@ func NewServer(wg *sync.WaitGroup, ct *container.Container, ch_terminate chan bo
 		wg:           wg,
 		config:       ct.Config,
 		tokenMaker:   tokenMaker,
-		service:      apiservice,
+		service:      rpcservice,
 		dbHnd:        ct.DbHnd,
 		objdb:        ct.ObjDb,
 		ch_terminate: ch_terminate,

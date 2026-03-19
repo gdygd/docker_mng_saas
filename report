@@ -14,10 +14,6 @@ auth-service, agent-service 추가
 -rpc 메시지 수정
 -rpc 메시지 테스트 (ContainerInfo, ContainerInspect, ContainerStats)
 
-
-todo
--rpc 테스트
--api gateway 추가
--전체 실행후 테스트
--서비스 컨테이너 화
--aws배포
+26.03.20
+-컨테이너 관련 테이블 생성
+-컨테이너정보, 인스펙트, stats grpc 수신후 db write

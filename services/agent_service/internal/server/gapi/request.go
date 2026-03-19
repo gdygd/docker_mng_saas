@@ -130,3 +130,9 @@ type ContainerEvent struct {
 	Timestamp int64             `json:"timestamp"`
 	Attrs     map[string]string `json:"attrs,omitempty"`
 }
+
+// DockerHostConfig는 Docker 호스트 설정
+type DockerHostConfig struct {
+	Name string `json:"name"`
+	Addr string `json:"addr"`
+}

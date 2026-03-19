@@ -1,12 +1,13 @@
 package gapi
 
 import (
+	"agent-service/internal/dto"
 	pb "agent-service/pb"
 	"time"
 )
 
-func parseAgentMessage(req *pb.AgentMessage) AgentMessage {
-	msg := AgentMessage{
+func parseAgentMessage(req *pb.AgentMessage) dto.AgentMessage {
+	msg := dto.AgentMessage{
 		AgentKey:  req.GetAgentKey(),
 		DataType:  int(req.GetType()),
 		Host:      req.GetHost(),
@@ -27,13 +28,13 @@ func parseAgentMessage(req *pb.AgentMessage) AgentMessage {
 	return msg
 }
 
-func parseContainerListData(src *pb.ContainerListData) ContainerListData {
+func parseContainerListData(src *pb.ContainerListData) dto.ContainerListData {
 	if src == nil {
-		return ContainerListData{}
+		return dto.ContainerListData{}
 	}
-	containers := make([]ContainerInfo, len(src.GetContainers()))
+	containers := make([]dto.ContainerInfo, len(src.GetContainers()))
 	for i, c := range src.GetContainers() {
-		containers[i] = ContainerInfo{
+		containers[i] = dto.ContainerInfo{
 			ID:     c.GetId(),
 			Name:   c.GetName(),
 			Image:  c.GetImage(),
@@ -41,16 +42,16 @@ func parseContainerListData(src *pb.ContainerListData) ContainerListData {
 			Status: c.GetStatus(),
 		}
 	}
-	return ContainerListData{Containers: containers}
+	return dto.ContainerListData{Containers: containers}
 }
 
-func parseContainerInspectData(src *pb.ContainerInspectData) ContainerInspectData {
+func parseContainerInspectData(src *pb.ContainerInspectData) dto.ContainerInspectData {
 	if src == nil {
-		return ContainerInspectData{}
+		return dto.ContainerInspectData{}
 	}
-	inspects := make([]ContainerInspectInfo, len(src.GetInspects()))
+	inspects := make([]dto.ContainerInspectInfo, len(src.GetInspects()))
 	for i, ins := range src.GetInspects() {
-		info := ContainerInspectInfo{
+		info := dto.ContainerInspectInfo{
 			ID:       ins.GetId(),
 			Name:     ins.GetName(),
 			Image:    ins.GetImage(),
@@ -58,7 +59,7 @@ func parseContainerInspectData(src *pb.ContainerInspectData) ContainerInspectDat
 			Platform: ins.GetPlatform(),
 		}
 		if s := ins.GetState(); s != nil {
-			info.State = &ContainerStateInfo{
+			info.State = &dto.ContainerStateInfo{
 				Status:     s.GetStatus(),
 				Running:    s.GetRunning(),
 				Paused:     s.GetPaused(),
@@ -69,7 +70,7 @@ func parseContainerInspectData(src *pb.ContainerInspectData) ContainerInspectDat
 			}
 		}
 		if c := ins.GetConfig(); c != nil {
-			info.Config = &ContainerConfigInfo{
+			info.Config = &dto.ContainerConfigInfo{
 				Hostname:   c.GetHostname(),
 				User:       c.GetUser(),
 				Env:        c.GetEnv(),
@@ -80,27 +81,27 @@ func parseContainerInspectData(src *pb.ContainerInspectData) ContainerInspectDat
 			}
 		}
 		if n := ins.GetNetwork(); n != nil {
-			ports := make(map[string][]PortBindingInfo)
+			ports := make(map[string][]dto.PortBindingInfo)
 			for port, bindings := range n.GetPorts() {
-				var bindList []PortBindingInfo
+				var bindList []dto.PortBindingInfo
 				for _, b := range bindings.GetBindings() {
-					bindList = append(bindList, PortBindingInfo{
+					bindList = append(bindList, dto.PortBindingInfo{
 						HostIP:   b.GetHostIp(),
 						HostPort: b.GetHostPort(),
 					})
 				}
 				ports[port] = bindList
 			}
-			networks := make(map[string]NetworkEndpoint)
+			networks := make(map[string]dto.NetworkEndpoint)
 			for name, ep := range n.GetNetworks() {
-				networks[name] = NetworkEndpoint{
+				networks[name] = dto.NetworkEndpoint{
 					NetworkID:  ep.GetNetworkId(),
 					IPAddress:  ep.GetIpAddress(),
 					Gateway:    ep.GetGateway(),
 					MacAddress: ep.GetMacAddress(),
 				}
 			}
-			info.Network = &ContainerNetworkInfo{
+			info.Network = &dto.ContainerNetworkInfo{
 				IPAddress:  n.GetIpAddress(),
 				Gateway:    n.GetGateway(),
 				MacAddress: n.GetMacAddress(),
@@ -108,9 +109,9 @@ func parseContainerInspectData(src *pb.ContainerInspectData) ContainerInspectDat
 				Networks:   networks,
 			}
 		}
-		mounts := make([]MountPointInfo, len(ins.GetMounts()))
+		mounts := make([]dto.MountPointInfo, len(ins.GetMounts()))
 		for j, m := range ins.GetMounts() {
-			mounts[j] = MountPointInfo{
+			mounts[j] = dto.MountPointInfo{
 				Type:        m.GetType(),
 				Name:        m.GetName(),
 				Source:      m.GetSource(),
@@ -122,16 +123,16 @@ func parseContainerInspectData(src *pb.ContainerInspectData) ContainerInspectDat
 		info.Mounts = mounts
 		inspects[i] = info
 	}
-	return ContainerInspectData{Inspects: inspects}
+	return dto.ContainerInspectData{Inspects: inspects}
 }
 
-func parseContainerStatsData(src *pb.ContainerStatsData) ContainerStatsData {
+func parseContainerStatsData(src *pb.ContainerStatsData) dto.ContainerStatsData {
 	if src == nil {
-		return ContainerStatsData{}
+		return dto.ContainerStatsData{}
 	}
-	stats := make([]ContainerStatsInfo, len(src.GetStats()))
+	stats := make([]dto.ContainerStatsInfo, len(src.GetStats()))
 	for i, s := range src.GetStats() {
-		stats[i] = ContainerStatsInfo{
+		stats[i] = dto.ContainerStatsInfo{
 			ID:            s.GetId(),
 			Name:          s.GetName(),
 			CPUPercent:    s.GetCpuPercent(),
@@ -142,14 +143,14 @@ func parseContainerStatsData(src *pb.ContainerStatsData) ContainerStatsData {
 			NetworkTx:     s.GetNetworkTx(),
 		}
 	}
-	return ContainerStatsData{Stats: stats}
+	return dto.ContainerStatsData{Stats: stats}
 }
 
-func parseContainerEventData(host string, src *pb.ContainerEventData) ContainerEvent {
+func parseContainerEventData(host string, src *pb.ContainerEventData) dto.ContainerEvent {
 	if src == nil {
-		return ContainerEvent{}
+		return dto.ContainerEvent{}
 	}
-	return ContainerEvent{
+	return dto.ContainerEvent{
 		Host:      host,
 		Type:      src.GetType(),
 		Action:    src.GetAction(),
