@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	HOST_ID = 1
+	AGENT_ID = 1
+	HOST_ID  = 1
 )
 
 func (server *Server) ContainerState(ctx context.Context, req *pb.AgentMessage) (*pb.ServerMessage, error) {
@@ -39,7 +40,7 @@ func (server *Server) ContainerInfo(ctx context.Context, req *pb.AgentMessage) (
 
 	logger.Log.Print(2, "rpc ContainerInfo...2")
 
-	err := server.service.CreateContainerInfo(ctx, agentMsg.ListData, HOST_ID)
+	err := server.service.CreateContainerInfo(ctx, agentMsg.ListData, AGENT_ID, HOST_ID)
 	if err != nil {
 		logger.Log.Error("CreateContainerInfo error.. :%v", err)
 	}
@@ -62,7 +63,7 @@ func (server *Server) ContainerInspect(ctx context.Context, req *pb.AgentMessage
 			i, c.ID, c.Name, c.Image, c.Created, c.Platform, c.RestartCount, c.State.Status, c.Config.Hostname, c.Network.IPAddress)
 	}
 
-	if err := server.service.CreateContainerInspect(ctx, agentMsg.InspectData, HOST_ID); err != nil {
+	if err := server.service.CreateContainerInspect(ctx, agentMsg.InspectData, AGENT_ID, HOST_ID); err != nil {
 		logger.Log.Error("CreateContainerInspect error: %v", err)
 	}
 
@@ -80,7 +81,7 @@ func (server *Server) ContainerStats(ctx context.Context, req *pb.AgentMessage) 
 			i, c.ID, c.Name, c.CPUPercent, c.MemoryUsage, c.MemoryLimit, c.MemoryPercent, c.NetworkRx, c.NetworkTx)
 	}
 
-	if err := server.service.CreateContainerStats(ctx, agentMsg.StatsData, HOST_ID); err != nil {
+	if err := server.service.CreateContainerStats(ctx, agentMsg.StatsData, AGENT_ID, HOST_ID); err != nil {
 		logger.Log.Error("CreateContainerStats error: %v", err)
 	}
 
@@ -93,7 +94,7 @@ func (server *Server) ContainerEvent(ctx context.Context, req *pb.AgentMessage) 
 	logger.Log.Print(2, "rpc ContainerEvent type:%s action:%s actor:%s",
 		agentMsg.EventData.Type, agentMsg.EventData.Action, agentMsg.EventData.ActorID)
 
-	if err := server.service.CreateContainerEvent(ctx, agentMsg.EventData, HOST_ID); err != nil {
+	if err := server.service.CreateContainerEvent(ctx, agentMsg.EventData, AGENT_ID, HOST_ID); err != nil {
 		logger.Log.Error("CreateContainerEvent error: %v", err)
 	}
 

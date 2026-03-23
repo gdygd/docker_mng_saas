@@ -1,0 +1,30 @@
+DROP TRIGGER IF EXISTS TR_UPD_container_stats; 
+
+DELIMITER //
+
+CREATE TRIGGER TR_UPD_container_stats
+AFTER INSERT
+   ON container_stats_log FOR EACH ROW
+   
+BEGIN
+	INSERT INTO container_stats(
+	   id, host_id, container_id, collected_at
+	 , container_name, cpu_percent, memory_usage, memory_limit
+	 , memory_percent, network_rx, network_tx
+	) VALUES
+   ( NEW.id ,NEW.host_id ,NEW.container_id ,NEW.collected_at
+	,NEW.container_name ,NEW.cpu_percent ,NEW.memory_usage ,NEW.memory_limit
+	,NEW.memory_percent ,NEW.network_rx ,NEW.network_tx)
+   ON DUPLICATE KEY UPDATE
+	collected_at = NEW.collected_at
+	,container_name = NEW.container_name
+	,cpu_percent = NEW.cpu_percent
+	,memory_usage = NEW.memory_usage
+	,memory_limit = NEW.memory_limit
+	,memory_percent = NEW.memory_percent
+	,network_rx = NEW.network_rx
+	,network_tx = NEW.network_tx;
+	 
+END; //
+
+DELIMITER ;

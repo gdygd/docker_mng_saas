@@ -12,3 +12,11 @@
 -전체 실행후 테스트
 -서비스 컨테이너 화
 -aws배포
+
+/docker/ps2/$/{agentid}/{host}
+/docker/start2
+/docker/stop2
+/docker/inspect2/${agentid}/{host}/
+/docker/stat3/${agentid}/{host}
+
+/docker/hosts

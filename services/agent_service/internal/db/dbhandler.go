@@ -10,8 +10,12 @@ type DbHandler interface {
 	Close(*sql.DB)
 	ReadSysdate(ctx context.Context) (string, error)
 
-	CreateContainerInfo(ctx context.Context, hostId int, params []ContainerInfoParams) error
-	UpsertContainerInspect(ctx context.Context, hostId int, params []ContainerInspectParams) error
-	InsertContainerStats(ctx context.Context, hostId int, params []ContainerStatsParams) error
-	InsertContainerEvent(ctx context.Context, hostId int, param ContainerEventParams) error
+	CreateContainerInfo(ctx context.Context, agentid, hostId int, params []ContainerInfoParams) error
+	UpsertContainerInspect(ctx context.Context, agentid, hostId int, params []ContainerInspectParams) error
+	InsertContainerStats(ctx context.Context, agentid, hostId int, params []ContainerStatsParams) error
+	InsertContainerEvent(ctx context.Context, agentid, hostId int, param ContainerEventParams) error
+
+	ReadContainerInfo(ctx context.Context, agentid, hostid int) ([]ContainerInfo, error)
+	ReadContainerInspect(ctx context.Context, agentid, hostid int, containerID string) (*ContainerInspect, error)
+	ReadContainerStats(ctx context.Context, agentid, hostid int) ([]ContainerStats, error)
 }

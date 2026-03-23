@@ -1,15 +1,14 @@
 package service
 
 import (
+	"agent-service/internal/db"
 	"agent-service/internal/dto"
 	"agent-service/internal/logger"
+	"agent-service/internal/memory"
+	"agent-service/internal/service"
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"agent-service/internal/db"
-	"agent-service/internal/memory"
-	"agent-service/internal/service"
 )
 
 type RpcService struct {
@@ -28,31 +27,43 @@ func (s *RpcService) Test() {
 	fmt.Printf("test service")
 }
 
-func (s *RpcService) CreateContainerInfo(ctx context.Context, req dto.ContainerListData, hostid int) error {
+func (s *RpcService) CreateContainerInfo(ctx context.Context, req dto.ContainerListData, agentid, hostid int) error {
 	logger.Log.Print(2, "CreateContainerInfo service...")
 	params := toContainerInfoParams(req)
-	return s.dbHnd.CreateContainerInfo(ctx, hostid, params)
+	return s.dbHnd.CreateContainerInfo(ctx, agentid, hostid, params)
 }
 
-func (s *RpcService) CreateContainerInspect(ctx context.Context, req dto.ContainerInspectData, hostid int) error {
+func (s *RpcService) CreateContainerInspect(ctx context.Context, req dto.ContainerInspectData, agentid, hostid int) error {
 	params, err := toContainerInspectParams(req)
 	if err != nil {
 		return fmt.Errorf("toContainerInspectParams: %w", err)
 	}
-	return s.dbHnd.UpsertContainerInspect(ctx, hostid, params)
+	return s.dbHnd.UpsertContainerInspect(ctx, agentid, hostid, params)
 }
 
-func (s *RpcService) CreateContainerStats(ctx context.Context, req dto.ContainerStatsData, hostid int) error {
+func (s *RpcService) CreateContainerStats(ctx context.Context, req dto.ContainerStatsData, agentid, hostid int) error {
 	params := toContainerStatsParams(req)
-	return s.dbHnd.InsertContainerStats(ctx, hostid, params)
+	return s.dbHnd.InsertContainerStats(ctx, agentid, hostid, params)
 }
 
-func (s *RpcService) CreateContainerEvent(ctx context.Context, req dto.ContainerEvent, hostid int) error {
+func (s *RpcService) CreateContainerEvent(ctx context.Context, req dto.ContainerEvent, agentid, hostid int) error {
 	param, err := toContainerEventParam(req)
 	if err != nil {
 		return fmt.Errorf("toContainerEventParam: %w", err)
 	}
-	return s.dbHnd.InsertContainerEvent(ctx, hostid, param)
+	return s.dbHnd.InsertContainerEvent(ctx, agentid, hostid, param)
+}
+
+func (s *RpcService) ReadContainerInfo(ctx context.Context, agentid, hostid int) ([]db.ContainerInfo, error) {
+	return nil, nil
+}
+
+func (s *RpcService) ReadContainerInspect(ctx context.Context, agentid, hostid int, containerID string) (*db.ContainerInspect, error) {
+	return nil, nil
+}
+
+func (s *RpcService) ReadContainerStats(ctx context.Context, agentid, hostid int) ([]db.ContainerStats, error) {
+	return nil, nil
 }
 
 // --- converter ---

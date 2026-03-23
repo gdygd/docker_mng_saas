@@ -10,7 +10,7 @@ import (
 )
 
 // UpsertContainerInspect — (id, container_id) UNIQUE KEY 기준 UPSERT
-func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, hostId int, params []db.ContainerInspectParams) error {
+func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, agentid, hostId int, params []db.ContainerInspectParams) error {
 	if len(params) == 0 {
 		return nil
 	}
@@ -31,6 +31,7 @@ func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, hostId int,
 	query := `
 		INSERT INTO container_inspect (
 			id,
+			host_id,
 			container_id,
 			container_name,
 			image,
@@ -44,15 +45,15 @@ func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, hostId int,
 		) VALUES `
 
 	placeholders := make([]string, 0, len(params))
-	args := make([]interface{}, 0, len(params)*10)
+	args := make([]interface{}, 0, len(params)*11)
 
 	for _, p := range params {
-		placeholders = append(placeholders, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())")
+		placeholders = append(placeholders, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())")
 		args = append(args,
-			hostId, p.ID, p.Name, p.Image, p.Platform, p.RestartCount,
+			agentid, hostId, p.ID, p.Name, p.Image, p.Platform, p.RestartCount,
 			p.StateInfo, p.ConfigInfo, p.NetworkInfo, p.MountInfo,
 		)
-		logger.Log.Print(2, "containerid : %s, len(%d)", p.ID, len(p.ID))
+		logger.Log.Print(3, "agent[%d], host[%d] containerid : %s, len(%d)", agentid, hostId, p.ID, len(p.ID))
 	}
 
 	query += strings.Join(placeholders, ", ")

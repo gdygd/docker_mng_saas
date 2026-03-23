@@ -1,19 +1,21 @@
 package mdb
 
 import (
-	"agent-service/internal/db"
-	"agent-service/internal/logger"
 	"context"
 	"fmt"
+
+	"agent-service/internal/db"
+	"agent-service/internal/logger"
 )
 
 // InsertContainerEvent — 단건 이벤트 INSERT
-func (q *MariaDbHandler) InsertContainerEvent(ctx context.Context, hostId int, param db.ContainerEventParams) error {
+func (q *MariaDbHandler) InsertContainerEvent(ctx context.Context, agentid, hostId int, param db.ContainerEventParams) error {
 	ado := q.GetDB()
 
 	query := `
-		INSERT INTO container_event (
+		INSERT INTO container_event_log (
 			id,
+			host_id,
 			container_id,
 			received_at,
 			hostname,
@@ -23,10 +25,10 @@ func (q *MariaDbHandler) InsertContainerEvent(ctx context.Context, hostId int, p
 			actor_name,
 			event_timestamp,
 			attrs
-		) VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)`
+		) VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	_, err := ado.ExecContext(ctx, query,
-		hostId, param.ContainerID, param.Hostname,
+		agentid, hostId, param.ContainerID, param.Hostname,
 		param.Type, param.Action,
 		param.ActorID, param.ActorName,
 		param.EventTime, param.Attrs,

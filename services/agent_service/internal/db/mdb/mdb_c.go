@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func (q *MariaDbHandler) CreateContainerInfo(ctx context.Context, hostId int, params []db.ContainerInfoParams) error {
+func (q *MariaDbHandler) CreateContainerInfo(ctx context.Context, agentid, hostId int, params []db.ContainerInfoParams) error {
 	logger.Log.Print(2, "CreateContainerInfo db.. len(%d)", len(params))
 	if len(params) == 0 {
 		return nil
@@ -33,6 +33,7 @@ func (q *MariaDbHandler) CreateContainerInfo(ctx context.Context, hostId int, pa
 	query := `
 		INSERT INTO container_info (
 			id,
+			host_id,
 			container_id,
 			container_name,
 			image,
@@ -42,12 +43,12 @@ func (q *MariaDbHandler) CreateContainerInfo(ctx context.Context, hostId int, pa
 		) VALUES `
 
 	placeholders := make([]string, 0, len(params))
-	args := make([]interface{}, 0, len(params)*6)
+	args := make([]interface{}, 0, len(params)*7)
 
 	for _, arg := range params {
-		placeholders = append(placeholders, "(?, ?, ?, ?, ?, ?, NOW())")
-		args = append(args, hostId, arg.ID, arg.Name, arg.Image, arg.State, arg.Status)
-		logger.Log.Print(2, "containerID:%s, len(%d)", arg.ID, len(arg.ID))
+		placeholders = append(placeholders, "(?, ?, ?, ?, ?, ?, ?, NOW())")
+		args = append(args, agentid, hostId, arg.ID, arg.Name, arg.Image, arg.State, arg.Status)
+		logger.Log.Print(2, "agent[%d], host[%d] containerID:%s, len(%d)", agentid, hostId, arg.ID, len(arg.ID))
 	}
 
 	query += strings.Join(placeholders, ", ")

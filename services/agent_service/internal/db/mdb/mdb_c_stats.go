@@ -1,16 +1,17 @@
 package mdb
 
 import (
-	"agent-service/internal/db"
-	"agent-service/internal/logger"
 	"context"
 	"database/sql"
 	"fmt"
 	"strings"
+
+	"agent-service/internal/db"
+	"agent-service/internal/logger"
 )
 
 // InsertContainerStats — 수집 이력 bulk INSERT (시계열, UPSERT 없음)
-func (q *MariaDbHandler) InsertContainerStats(ctx context.Context, hostId int, params []db.ContainerStatsParams) error {
+func (q *MariaDbHandler) InsertContainerStats(ctx context.Context, agentid, hostId int, params []db.ContainerStatsParams) error {
 	if len(params) == 0 {
 		return nil
 	}
@@ -29,8 +30,9 @@ func (q *MariaDbHandler) InsertContainerStats(ctx context.Context, hostId int, p
 	}()
 
 	query := `
-		INSERT INTO container_stats (
+		INSERT INTO container_stats_log (
 			id,
+			host_id,
 			container_id,
 			collected_at,
 			container_name,
@@ -43,12 +45,12 @@ func (q *MariaDbHandler) InsertContainerStats(ctx context.Context, hostId int, p
 		) VALUES `
 
 	placeholders := make([]string, 0, len(params))
-	args := make([]interface{}, 0, len(params)*9)
+	args := make([]interface{}, 0, len(params)*10)
 
 	for _, p := range params {
-		placeholders = append(placeholders, "(?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)")
+		placeholders = append(placeholders, "(?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)")
 		args = append(args,
-			hostId, p.ID, p.Name,
+			agentid, hostId, p.ID, p.Name,
 			p.CPUPercent, p.MemoryUsage, p.MemoryLimit, p.MemoryPercent,
 			p.NetworkRx, p.NetworkTx,
 		)
