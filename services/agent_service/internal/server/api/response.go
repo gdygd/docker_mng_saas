@@ -183,14 +183,15 @@ func ToContainerInspectResponse(c db.ContainerInspect) ContainerInspectResponse 
 // ============================================================================
 
 type ContainerStatsResponse struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	CPUPercent    float64 `json:"cpu_percent"`
-	MemoryUsage   string  `json:"memory_usage"` // "1.2 GiB"
-	MemoryLimit   string  `json:"memory_limit"` // "4.0 GiB"
-	MemoryPercent float64 `json:"memory_percent"`
-	NetworkRx     string  `json:"network_rx"` // "1.5 MiB"
-	NetworkTx     string  `json:"network_tx"` // "2.3 MiB"
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	CPUPercent    float64   `json:"cpu_percent"`
+	MemoryUsage   string    `json:"memory_usage"` // "1.2 GiB"
+	MemoryLimit   string    `json:"memory_limit"` // "4.0 GiB"
+	MemoryPercent float64   `json:"memory_percent"`
+	NetworkRx     string    `json:"network_rx"`   // "1.5 MiB"
+	NetworkTx     string    `json:"network_tx"`   // "2.3 MiB"
+	CollectedAt   time.Time `json:"collected_at"` //
 }
 
 func ToContainerStatsResponse(s db.ContainerStats) ContainerStatsResponse {
@@ -203,6 +204,7 @@ func ToContainerStatsResponse(s db.ContainerStats) ContainerStatsResponse {
 		MemoryPercent: s.MemoryPercent,
 		NetworkRx:     s.NetworkRx,
 		NetworkTx:     s.NetworkTx,
+		CollectedAt:   s.CollectedAt.Time,
 	}
 }
 

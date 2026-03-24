@@ -1,10 +1,11 @@
 package mdb
 
 import (
-	"agent-service/internal/db"
-	"agent-service/internal/logger"
 	"context"
 	"fmt"
+
+	"agent-service/internal/db"
+	"agent-service/internal/logger"
 )
 
 func (q *MariaDbHandler) ReadSysdate(ctx context.Context) (string, error) {
@@ -111,7 +112,7 @@ func (q *MariaDbHandler) ReadContainerInspect(ctx context.Context, agentid, host
 	INNER JOIN container_inspect ci ON ci.host_id = ah.host_id
 	WHERE ah.id = ?
 	AND ah.host_id = ?
-	AND ci.container_id = ?
+	AND ci.container_id LIKE CONCAT(?, '%')
 	`
 
 	row := ado.QueryRowContext(ctx, query, agentid, hostid, containerID)
@@ -140,26 +141,21 @@ func (q *MariaDbHandler) ReadContainerStats(ctx context.Context, agentid, hostid
 
 	query := `
 	SELECT cs.container_id
-		 , IFNULL(cs.container_name, '') container_name
-		 , IFNULL(cs.cpu_percent, 0) cpu_percent
-		 , IFNULL(cs.memory_usage, 0) memory_usage
-		 , IFNULL(cs.memory_limit, 0) memory_limit
-		 , IFNULL(cs.memory_percent, 0) memory_percent
-		 , IFNULL(cs.network_rx, 0) network_rx
-		 , IFNULL(cs.network_tx, 0) network_tx
+		, IFNULL(cs.container_name, '') container_name
+		, IFNULL(cs.cpu_percent, 0) cpu_percent
+		, IFNULL(cs.memory_usage, 0) memory_usage
+		, IFNULL(cs.memory_limit, 0) memory_limit
+		, IFNULL(cs.memory_percent, 0) memory_percent
+		, IFNULL(cs.network_rx, 0) network_rx
+		, IFNULL(cs.network_tx, 0) network_tx
+		, cs.collected_at
 	FROM agent_host ah
-	INNER JOIN container_stats cs ON cs.host_id = ah.host_id
-	INNER JOIN (
-		SELECT container_id, MAX(collected_at) AS max_ts
-		FROM container_stats
-		WHERE host_id = ?
-		GROUP BY container_id
-	) latest ON cs.container_id = latest.container_id AND cs.collected_at = latest.max_ts
+	INNER JOIN container_stats cs ON  cs.id = ah.id AND cs.host_id = ah.host_id
 	WHERE ah.id = ?
-	AND ah.host_id = ?
+	and ah.HOST_ID = ?
 	`
 
-	rows, err := ado.QueryContext(ctx, query, hostid, agentid, hostid)
+	rows, err := ado.QueryContext(ctx, query, agentid, hostid)
 	if err != nil {
 		logger.Log.Error("ReadContainerStats#1 error %v", err)
 		return nil, err
@@ -180,6 +176,7 @@ func (q *MariaDbHandler) ReadContainerStats(ctx context.Context, agentid, hostid
 			&r.MemoryPercent,
 			&netRx,
 			&netTx,
+			&r.CollectedAt,
 		); err != nil {
 			logger.Log.Error("ReadContainerStats#2 error %v", err)
 			return nil, err

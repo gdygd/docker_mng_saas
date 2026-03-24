@@ -1,10 +1,14 @@
 package gapi
 
 import (
-	"agent-service/internal/logger"
 	"context"
+	"encoding/json"
+
+	"agent-service/internal/logger"
 
 	pb "agent-service/pb"
+
+	"github.com/gdygd/goglib"
 )
 
 const (
@@ -94,9 +98,27 @@ func (server *Server) ContainerEvent(ctx context.Context, req *pb.AgentMessage) 
 	logger.Log.Print(2, "rpc ContainerEvent type:%s action:%s actor:%s",
 		agentMsg.EventData.Type, agentMsg.EventData.Action, agentMsg.EventData.ActorID)
 
+	logger.Log.Print(1, "rcp event host : %s", agentMsg.EventData.Host)
+	logger.Log.Print(1, "rcp event type : %s", agentMsg.EventData.Type)
+	logger.Log.Print(1, "rcp event action : %s", agentMsg.EventData.Action)
+	logger.Log.Print(1, "rcp event actorid : %s", agentMsg.EventData.ActorID)
+	logger.Log.Print(1, "rcp event actorname : %s", agentMsg.EventData.ActorName)
+	logger.Log.Print(1, "rcp event timestamp : %s", agentMsg.EventData.Timestamp)
+	logger.Log.Print(1, "rcp event attrs : %v", agentMsg.EventData.Attrs)
+
 	if err := server.service.CreateContainerEvent(ctx, agentMsg.EventData, AGENT_ID, HOST_ID); err != nil {
 		logger.Log.Error("CreateContainerEvent error: %v", err)
+		return &pb.ServerMessage{}, nil
 	}
+
+	// sse
+
+	data, _ := json.Marshal(agentMsg.EventData)
+	logger.Log.Print(2, "sse container event..%s", string(data))
+	goglib.SendSSE(goglib.EventData{
+		Msgtype: "container-event",
+		Data:    string(data),
+	})
 
 	return &pb.ServerMessage{}, nil
 }

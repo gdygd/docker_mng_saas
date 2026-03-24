@@ -96,4 +96,6 @@ type ContainerStats struct {
 	MemoryPercent float64 `json:"memory_percent"`
 	NetworkRx     string  `json:"network_rx"` // "1.5 MiB"
 	NetworkTx     string  `json:"network_tx"` // "2.3 MiB"
+
+	CollectedAt sql.NullTime `json:"collected_at"`
 }

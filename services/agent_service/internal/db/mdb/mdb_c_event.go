@@ -18,6 +18,7 @@ func (q *MariaDbHandler) InsertContainerEvent(ctx context.Context, agentid, host
 			host_id,
 			container_id,
 			received_at,
+			seq,
 			hostname,
 			type,
 			action,
@@ -25,7 +26,7 @@ func (q *MariaDbHandler) InsertContainerEvent(ctx context.Context, agentid, host
 			actor_name,
 			event_timestamp,
 			attrs
-		) VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)`
+		) VALUES (?, ?, ?, NOW(), NEXT VALUE FOR sq_eventlog, ?, ?, ?, ?, ?, ?, ?)`
 
 	_, err := ado.ExecContext(ctx, query,
 		agentid, hostId, param.ContainerID, param.Hostname,

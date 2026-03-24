@@ -1,12 +1,13 @@
 package api
 
 import (
-	"api-gateway/internal/logger"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"api-gateway/internal/logger"
 
 	"github.com/gdygd/goglib/token"
 	"github.com/gin-contrib/cors"
@@ -26,6 +27,7 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
 		if strings.HasPrefix(path, "/auth/login") ||
 			strings.HasPrefix(path, "/auth/refresh") ||
+			strings.HasPrefix(path, "/auth/user") ||
 			strings.HasPrefix(path, "/public") {
 			ctx.Next()
 			return

@@ -20,3 +20,6 @@
 /docker/stat3/${agentid}/{host}
 
 /docker/hosts
+
+도커 이미지 빌드 / 배포
+프론트 api 테스트

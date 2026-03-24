@@ -1,9 +1,10 @@
 package service
 
 import (
+	"context"
+
 	"agent-service/internal/db"
 	"agent-service/internal/dto"
-	"context"
 )
 
 type ServiceInterface interface {

@@ -30,7 +30,7 @@ COPY --from=builder /app/app .
 COPY cmd/app.env ./app.env
 
 
-EXPOSE 9081 5173
+EXPOSE 19081
 
 # 실행
 ENTRYPOINT ["./app"]

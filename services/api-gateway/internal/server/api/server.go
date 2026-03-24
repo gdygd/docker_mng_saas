@@ -194,7 +194,7 @@ func (server *Server) setupRouter() {
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
 
-	router.Any("/agent/*proxyPath", func(c *gin.Context) {
+	router.Any("/docker/*proxyPath", func(c *gin.Context) {
 		logger.Log.Print(2, "docker url :%v ", c.Request.URL)
 
 		// proxy := newReverseProxy(addr)

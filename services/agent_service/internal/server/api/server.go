@@ -88,13 +88,16 @@ func (server *Server) setupRouter() {
 	router.GET("/inspect2/:agentid/:host/:id", server.containerInspect2)
 	router.GET("/stat3/:agentid/:host", server.statContainer3)
 
-	// router.GET("/events", gin.WrapF(handleSSE()))
+	router.GET("/events", gin.WrapF(handleSSE()))
 
 	server.router = router
 }
 
 func (server *Server) Start() error {
 	logger.Log.Print(2, "Gin server start.")
+
+	// sse
+	go ProcessEventMsg()
 
 	if err := server.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Log.Error("listen error. %v", err)

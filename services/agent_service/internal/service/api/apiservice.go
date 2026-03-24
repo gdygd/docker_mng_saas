@@ -1,12 +1,13 @@
 package service
 
 import (
+	"context"
+	"fmt"
+
 	"agent-service/internal/db"
 	"agent-service/internal/dto"
 	"agent-service/internal/memory"
 	"agent-service/internal/service"
-	"context"
-	"fmt"
 )
 
 type ApiService struct {
