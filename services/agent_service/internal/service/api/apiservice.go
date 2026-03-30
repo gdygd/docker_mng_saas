@@ -42,6 +42,10 @@ func (s *ApiService) CreateContainerEvent(ctx context.Context, req dto.Container
 	return nil
 }
 
+func (s *ApiService) ReadHost(ctx context.Context, agentid int) ([]db.Host, error) {
+	return s.dbHnd.ReadHost(ctx, agentid)
+}
+
 func (s *ApiService) ReadContainerInfo(ctx context.Context, agentid, hostid int) ([]db.ContainerInfo, error) {
 	return s.dbHnd.ReadContainerInfo(ctx, agentid, hostid)
 }

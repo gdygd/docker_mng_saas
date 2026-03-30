@@ -39,6 +39,24 @@ func ErrorResponse(message string) APIResponse[any] {
 	}
 }
 
+type DockerHost struct {
+	HostId      int    `json:"id"`
+	HostName    string `json:"host"`
+	HostAddress string `json:"addr"`
+}
+
+func ToContainerHostResponse(hostinfos []db.Host) []DockerHost {
+	var hosts []DockerHost = []DockerHost{}
+	for _, host := range hostinfos {
+		hosts = append(hosts, DockerHost{
+			HostId:      host.HostId,
+			HostName:    host.HostName,
+			HostAddress: host.HostAddress,
+		})
+	}
+	return hosts
+}
+
 type ContainerResponse struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`

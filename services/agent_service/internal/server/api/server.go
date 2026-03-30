@@ -84,6 +84,7 @@ func (server *Server) setupRouter() {
 
 	router.GET("/test", server.testapi)
 
+	router.GET("/hosts/:agentid", server.dockerHostList)  // id: agent id, host : host id
 	router.GET("/ps2/:agentid/:hostid", server.dockerPs2) // id: agent id, host : host id
 	router.GET("/inspect2/:agentid/:host/:id", server.containerInspect2)
 	router.GET("/stat3/:agentid/:host", server.statContainer3)

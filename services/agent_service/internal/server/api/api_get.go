@@ -31,6 +31,28 @@ func (server *Server) terminate(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
+type requestAgentId struct {
+	ID int `uri:"agentid" binding:"required"`
+}
+
+func (server *Server) dockerHostList(ctx *gin.Context) {
+	var req requestAgentId
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	hosts, err := server.service.ReadHost(ctx, req.ID)
+	if err != nil {
+		logger.Log.Error("dockerHostList error.. [%v]", err)
+		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err.Error()))
+		return
+	}
+
+	response := ToContainerHostResponse(hosts)
+	ctx.JSON(http.StatusOK, SuccessResponse(response))
+}
+
 func (server *Server) dockerPs2(ctx *gin.Context) {
 	var req requestAgentHost
 	if err := ctx.ShouldBindUri(&req); err != nil {

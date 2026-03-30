@@ -95,7 +95,7 @@ func (server *Server) ContainerStats(ctx context.Context, req *pb.AgentMessage) 
 func (server *Server) ContainerEvent(ctx context.Context, req *pb.AgentMessage) (*pb.ServerMessage, error) {
 	agentMsg := parseAgentMessage(req)
 
-	logger.Log.Print(2, "rpc ContainerEvent type:%s action:%s actor:%s",
+	logger.Log.Print(1, "rpc ContainerEvent type:%s action:%s actor:%s",
 		agentMsg.EventData.Type, agentMsg.EventData.Action, agentMsg.EventData.ActorID)
 
 	logger.Log.Print(1, "rcp event host : %s", agentMsg.EventData.Host)
@@ -114,7 +114,7 @@ func (server *Server) ContainerEvent(ctx context.Context, req *pb.AgentMessage) 
 	// sse
 
 	data, _ := json.Marshal(agentMsg.EventData)
-	logger.Log.Print(2, "sse container event..%s", string(data))
+	logger.Log.Print(1, "sse container event..%s", string(data))
 	goglib.SendSSE(goglib.EventData{
 		Msgtype: "container-event",
 		Data:    string(data),

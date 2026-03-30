@@ -1,14 +1,15 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+
 	"agent-service/internal/db"
 	"agent-service/internal/dto"
 	"agent-service/internal/logger"
 	"agent-service/internal/memory"
 	"agent-service/internal/service"
-	"context"
-	"encoding/json"
-	"fmt"
 )
 
 type RpcService struct {
@@ -52,6 +53,10 @@ func (s *RpcService) CreateContainerEvent(ctx context.Context, req dto.Container
 		return fmt.Errorf("toContainerEventParam: %w", err)
 	}
 	return s.dbHnd.InsertContainerEvent(ctx, agentid, hostid, param)
+}
+
+func (s *RpcService) ReadHost(ctx context.Context, agentid int) ([]db.Host, error) {
+	return nil, nil
 }
 
 func (s *RpcService) ReadContainerInfo(ctx context.Context, agentid, hostid int) ([]db.ContainerInfo, error) {

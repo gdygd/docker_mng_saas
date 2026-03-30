@@ -33,7 +33,17 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 			return
 		}
 
-		authorizationHeader := ctx.GetHeader(authorizationHeaderKey)
+		authorizationHeader := ""
+		if strings.HasPrefix(path, "/docker-sse/events") {
+			authorizationHeader = "Bearer "
+			authorizationHeader += ctx.Query("token")
+			logger.Log.Print(2, "sse token : %s", authorizationHeader)
+		} else {
+			authorizationHeader = ctx.GetHeader(authorizationHeaderKey)
+			logger.Log.Print(2, "req token : %s", authorizationHeader)
+		}
+
+		// authorizationHeader := ctx.GetHeader(authorizationHeaderKey)
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provided")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))

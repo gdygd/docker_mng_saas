@@ -37,6 +37,45 @@ func (q *MariaDbHandler) ReadSysdate(ctx context.Context) (string, error) {
 	return strDateTime, nil
 }
 
+func (q *MariaDbHandler) ReadHost(ctx context.Context, agentid int) ([]db.Host, error) {
+	ado := q.GetDB()
+
+	query := `
+	select a.host_id, a.hostname, a.host_address from agent_host a where id = ?
+	`
+
+	rows, err := ado.QueryContext(ctx, query, agentid)
+	if err != nil {
+		logger.Log.Error("ReadHost#1 error %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rst []db.Host = []db.Host{}
+
+	for rows.Next() {
+		row := db.Host{}
+		if err := rows.Scan(
+			&row.HostId,
+			&row.HostName,
+			&row.HostAddress,
+		); err != nil {
+			logger.Log.Error("ReadHost#2 error %v", err)
+			return nil, err
+		}
+		rst = append(rst, row)
+	}
+	if err := rows.Close(); err != nil {
+		logger.Log.Error("ReadHost#3 error %v", err)
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		logger.Log.Error("ReadHost#4 error %v", err)
+		return nil, err
+	}
+	return rst, nil
+}
+
 func (q *MariaDbHandler) ReadContainerInfo(ctx context.Context, agentid, hostid int) ([]db.ContainerInfo, error) {
 	ado := q.GetDB()
 

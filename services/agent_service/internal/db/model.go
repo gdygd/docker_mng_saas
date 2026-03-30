@@ -99,3 +99,10 @@ type ContainerStats struct {
 
 	CollectedAt sql.NullTime `json:"collected_at"`
 }
+
+type Host struct {
+	HostId      int
+	HostName    string
+	HostAddress string
+	Mode        int
+}

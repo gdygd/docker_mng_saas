@@ -15,6 +15,7 @@ type DbHandler interface {
 	InsertContainerStats(ctx context.Context, agentid, hostId int, params []ContainerStatsParams) error
 	InsertContainerEvent(ctx context.Context, agentid, hostId int, param ContainerEventParams) error
 
+	ReadHost(ctx context.Context, agentid int) ([]Host, error)
 	ReadContainerInfo(ctx context.Context, agentid, hostid int) ([]ContainerInfo, error)
 	ReadContainerInspect(ctx context.Context, agentid, hostid int, containerID string) (*ContainerInspect, error)
 	ReadContainerStats(ctx context.Context, agentid, hostid int) ([]ContainerStats, error)
