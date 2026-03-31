@@ -9,7 +9,7 @@ import (
 )
 
 // InsertContainerEvent — 단건 이벤트 INSERT
-func (q *MariaDbHandler) InsertContainerEvent(ctx context.Context, agentid, hostId int, param db.ContainerEventParams) error {
+func (q *MariaDbHandler) InsertContainerEvent(ctx context.Context, param db.ContainerEventParams) error {
 	ado := q.GetDB()
 
 	query := `
@@ -29,7 +29,7 @@ func (q *MariaDbHandler) InsertContainerEvent(ctx context.Context, agentid, host
 		) VALUES (?, ?, ?, NOW(), NEXT VALUE FOR sq_eventlog, ?, ?, ?, ?, ?, ?, ?)`
 
 	_, err := ado.ExecContext(ctx, query,
-		agentid, hostId, param.ContainerID, param.Hostname,
+		param.AgentId, param.HostId, param.ContainerID, param.Hostname,
 		param.Type, param.Action,
 		param.ActorID, param.ActorName,
 		param.EventTime, param.Attrs,

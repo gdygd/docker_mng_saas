@@ -1,16 +1,17 @@
 package mdb
 
 import (
-	"agent-service/internal/db"
-	"agent-service/internal/logger"
 	"context"
 	"database/sql"
 	"fmt"
 	"strings"
+
+	"agent-service/internal/db"
+	"agent-service/internal/logger"
 )
 
-func (q *MariaDbHandler) CreateContainerInfo(ctx context.Context, agentid, hostId int, params []db.ContainerInfoParams) error {
-	logger.Log.Print(2, "CreateContainerInfo db.. len(%d)", len(params))
+func (q *MariaDbHandler) CreateContainerInfo(ctx context.Context, params []db.ContainerInfoParams) error {
+	logger.Log.Print(1, "CreateContainerInfo db.. len(%d)", len(params))
 	if len(params) == 0 {
 		return nil
 	}
@@ -47,8 +48,8 @@ func (q *MariaDbHandler) CreateContainerInfo(ctx context.Context, agentid, hostI
 
 	for _, arg := range params {
 		placeholders = append(placeholders, "(?, ?, ?, ?, ?, ?, ?, NOW())")
-		args = append(args, agentid, hostId, arg.ID, arg.Name, arg.Image, arg.State, arg.Status)
-		logger.Log.Print(2, "agent[%d], host[%d] containerID:%s, len(%d)", agentid, hostId, arg.ID, len(arg.ID))
+		args = append(args, arg.AgentId, arg.HostId, arg.ID, arg.Name, arg.Image, arg.State, arg.Status)
+		logger.Log.Print(1, "agent[%d], host[%d] containerID:%s, len(%d)", arg.AgentId, arg.HostId, arg.ID, len(arg.ID))
 	}
 
 	query += strings.Join(placeholders, ", ")
@@ -61,7 +62,7 @@ func (q *MariaDbHandler) CreateContainerInfo(ctx context.Context, agentid, hostI
 			status         = VALUES(status),
 			changed_at     = VALUES(changed_at)`
 
-	logger.Log.Print(2, "CreateContainerInfo qry :%s", query)
+	logger.Log.Print(1, "CreateContainerInfo qry :%s", query)
 
 	if _, err = tx.ExecContext(ctx, query, args...); err != nil {
 		logger.Log.Error("failed to insert container info: %v", err)

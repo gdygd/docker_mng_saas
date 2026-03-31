@@ -35,9 +35,9 @@ func (q *MariaDbHandler) Init() error {
 		return err
 	}
 
-	db.SetMaxOpenConns(5)                  // 동시 최대 연결 수
-	db.SetMaxIdleConns(3)                  // 유휴 상태로 유지할 연결 수
-	db.SetConnMaxLifetime(1 * time.Minute) // 연결의 최대 수명
+	db.SetMaxOpenConns(60)                 // 동시 최대 연결 수
+	db.SetMaxIdleConns(30)                 // 유휴 상태로 유지할 연결 수
+	db.SetConnMaxLifetime(3 * time.Minute) // 연결의 최대 수명
 
 	// PingContext로 연결 확인
 	if err := db.PingContext(ctx); err != nil {

@@ -15,6 +15,7 @@ import (
 	"agent-service/internal/db"
 	"agent-service/internal/logger"
 	"agent-service/internal/memory"
+	"agent-service/internal/server/dbbatch"
 	"agent-service/internal/service"
 
 	rpcserv "agent-service/internal/service/api"
@@ -48,15 +49,17 @@ type Server struct {
 	dbHnd        db.DbHandler
 	objdb        *memory.RedisDb
 	ch_terminate chan bool
+	batch        *dbbatch.DbBatch
 
 	work_wg     *sync.WaitGroup
 	work_ctx    context.Context
 	work_cancel context.CancelFunc
 
-	jobCh chan Job_ConnMessage
+	jobCh        chan Job_ConnMessage
+	statsCounter statsCounter
 }
 
-func NewServer(wg *sync.WaitGroup, ct *container.Container, ch_terminate chan bool) (*Server, error) {
+func NewServer(wg *sync.WaitGroup, ct *container.Container, ch_terminate chan bool, batch *dbbatch.DbBatch) (*Server, error) {
 	// apiservice := apiserv.NewApiService(ct.DbHnd, ct.ObjDb)
 	rpcservice := rpcserv.NewRpcService(ct.DbHnd, ct.ObjDb)
 	tokenMaker, err := token.NewJWTMaker(ct.Config.TokenSecretKey)
@@ -73,6 +76,7 @@ func NewServer(wg *sync.WaitGroup, ct *container.Container, ch_terminate chan bo
 		dbHnd:        ct.DbHnd,
 		objdb:        ct.ObjDb,
 		ch_terminate: ch_terminate,
+		batch:        batch,
 
 		work_wg:     &sync.WaitGroup{},
 		work_ctx:    workctx,
@@ -207,6 +211,9 @@ func NewServer(wg *sync.WaitGroup, ct *container.Container, ch_terminate chan bo
 // }
 
 func (server *Server) StartgPRC() error {
+	// RPS 로거
+	go server.runStatsRateLogger(server.work_ctx)
+
 	// worker 실행
 	go func() {
 		for i := 0; i < 10; i++ {

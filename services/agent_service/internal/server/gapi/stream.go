@@ -10,7 +10,7 @@ import (
 )
 
 func (s *Server) DataStream(stream pb.ContainerService_DataStreamServer) error {
-	logger.Log.Print(2, "DataStream...!")
+	logger.Log.Print(1, "DataStream...!")
 	req, err := stream.Recv()
 	if err == io.EOF {
 		log.Println("client closed stream")

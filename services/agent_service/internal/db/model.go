@@ -3,15 +3,19 @@ package db
 import "database/sql"
 
 type ContainerInfoParams struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Image  string `json:"image"`
-	State  string `json:"state"`
-	Status string `json:"status"`
+	AgentId int
+	HostId  int
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Image   string `json:"image"`
+	State   string `json:"state"`
+	Status  string `json:"status"`
 }
 
 // ContainerInspectParams — JSON 컬럼은 service 레이어에서 직렬화된 문자열로 전달
 type ContainerInspectParams struct {
+	AgentId      int
+	HostId       int
 	ID           string
 	Name         string
 	Image        string
@@ -24,6 +28,8 @@ type ContainerInspectParams struct {
 }
 
 type ContainerStatsParams struct {
+	AgentId       int
+	HostId        int
 	ID            string
 	Name          string
 	CPUPercent    float64
@@ -35,6 +41,8 @@ type ContainerStatsParams struct {
 }
 
 type ContainerEventParams struct {
+	AgentId     int
+	HostId      int
 	ContainerID string
 	Hostname    string
 	Type        string

@@ -1,16 +1,17 @@
 package mdb
 
 import (
-	"agent-service/internal/db"
-	"agent-service/internal/logger"
 	"context"
 	"database/sql"
 	"fmt"
 	"strings"
+
+	"agent-service/internal/db"
+	"agent-service/internal/logger"
 )
 
 // UpsertContainerInspect — (id, container_id) UNIQUE KEY 기준 UPSERT
-func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, agentid, hostId int, params []db.ContainerInspectParams) error {
+func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, params []db.ContainerInspectParams) error {
 	if len(params) == 0 {
 		return nil
 	}
@@ -19,8 +20,8 @@ func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, agentid, ho
 
 	tx, err := ado.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
 	if err != nil {
-		logger.Log.Error("failed to begin transaction: %v", err)
-		return fmt.Errorf("failed to begin transaction: %w", err)
+		logger.Log.Error("[UpsertContainerInspect]failed to begin transaction: , %v", err)
+		return fmt.Errorf("[UpsertContainerInspect]failed to begin transaction:, %w", err)
 	}
 	defer func() {
 		if err != nil {
@@ -50,10 +51,10 @@ func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, agentid, ho
 	for _, p := range params {
 		placeholders = append(placeholders, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())")
 		args = append(args,
-			agentid, hostId, p.ID, p.Name, p.Image, p.Platform, p.RestartCount,
+			p.AgentId, p.HostId, p.ID, p.Name, p.Image, p.Platform, p.RestartCount,
 			p.StateInfo, p.ConfigInfo, p.NetworkInfo, p.MountInfo,
 		)
-		logger.Log.Print(3, "agent[%d], host[%d] containerid : %s, len(%d)", agentid, hostId, p.ID, len(p.ID))
+		logger.Log.Print(1, "agent[%d], host[%d] containerid : %s, len(%d)", p.AgentId, p.HostId, p.ID, len(p.ID))
 	}
 
 	query += strings.Join(placeholders, ", ")
@@ -71,13 +72,13 @@ func (q *MariaDbHandler) UpsertContainerInspect(ctx context.Context, agentid, ho
 			changed_at     = VALUES(changed_at)`
 
 	if _, err = tx.ExecContext(ctx, query, args...); err != nil {
-		logger.Log.Error("failed to upsert container inspect: %v", err)
-		return fmt.Errorf("failed to upsert container inspect: %w", err)
+		logger.Log.Error("[UpsertContainerInspect]failed to upsert container inspect: %v", err)
+		return fmt.Errorf("[UpsertContainerInspect]failed to upsert container inspect: %w", err)
 	}
 
 	if err = tx.Commit(); err != nil {
-		logger.Log.Error("failed to commit transaction: %v", err)
-		return fmt.Errorf("failed to commit transaction: %w", err)
+		logger.Log.Error("[UpsertContainerInspect]failed to commit transaction: %v", err)
+		return fmt.Errorf("[UpsertContainerInspect]failed to commit transaction: %w", err)
 	}
 
 	return nil

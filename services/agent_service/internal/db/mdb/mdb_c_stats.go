@@ -11,7 +11,7 @@ import (
 )
 
 // InsertContainerStats — 수집 이력 bulk INSERT (시계열, UPSERT 없음)
-func (q *MariaDbHandler) InsertContainerStats(ctx context.Context, agentid, hostId int, params []db.ContainerStatsParams) error {
+func (q *MariaDbHandler) InsertContainerStats(ctx context.Context, params []db.ContainerStatsParams) error {
 	if len(params) == 0 {
 		return nil
 	}
@@ -50,7 +50,7 @@ func (q *MariaDbHandler) InsertContainerStats(ctx context.Context, agentid, host
 	for _, p := range params {
 		placeholders = append(placeholders, "(?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)")
 		args = append(args,
-			agentid, hostId, p.ID, p.Name,
+			p.AgentId, p.HostId, p.ID, p.Name,
 			p.CPUPercent, p.MemoryUsage, p.MemoryLimit, p.MemoryPercent,
 			p.NetworkRx, p.NetworkTx,
 		)
