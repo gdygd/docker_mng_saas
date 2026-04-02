@@ -21,9 +21,10 @@ const (
 	// Inspect : 11 cols × 200 = 2,200
 	// Stats   : 10 cols × 300 = 3,000
 	defaultChunkSize = 300
-	infoChunkSize    = 500
+	infoChunkSize    = 200
 	inspectChunkSize = 200
 	statsChunkSize   = 300
+	eventChunkSize   = 300
 )
 
 // ============================================================================
@@ -59,19 +60,19 @@ func (b *DbBatch) runInfoWorker() {
 		//----------------------
 		// defaultChunkSize 단위로 분할 INSERT — placeholder 한계(65535) 초과 방지
 		total := len(allParams)
-		chunks := (total + defaultChunkSize - 1) / defaultChunkSize
-		for i := 0; i < total; i += defaultChunkSize {
-			end := i + defaultChunkSize
+		chunks := (total + infoChunkSize - 1) / infoChunkSize
+		for i := 0; i < total; i += infoChunkSize {
+			end := i + infoChunkSize
 			if end > total {
 				end = total
 			}
-			logger.Log.Print(2, "insert... : %d", end-i)
+			logger.Log.Print(1, "insert... : %d", end-i)
 			if err := b.dbHnd.CreateContainerInfo(ctx, allParams[i:end]); err != nil {
 				logger.Log.Error("DbBatch[info] flush error: %v", err)
 			}
-			logger.Log.Print(2, "insert ok : %d", end-i)
+			logger.Log.Print(1, "insert ok : %d", end-i)
 		}
-		logger.Log.Print(2, "info flush: %d rows, %d chunks", total, chunks)
+		logger.Log.Print(1, "info flush: %d rows, %d chunks", total, chunks)
 
 		//----------------------
 	}
@@ -135,19 +136,19 @@ func (b *DbBatch) runInspectWorker() {
 		// defaultChunkSize 단위로 분할 INSERT — placeholder 한계(65535) 초과 방지
 		defer cancel()
 		total := len(allParams)
-		chunks := (total + defaultChunkSize - 1) / defaultChunkSize
-		for i := 0; i < total; i += defaultChunkSize {
-			end := i + defaultChunkSize
+		chunks := (total + inspectChunkSize - 1) / inspectChunkSize
+		for i := 0; i < total; i += inspectChunkSize {
+			end := i + inspectChunkSize
 			if end > total {
 				end = total
 			}
-			logger.Log.Print(2, "update inspect... : %d", end-i)
+			logger.Log.Print(1, "update inspect... : %d", end-i)
 			if err := b.dbHnd.UpsertContainerInspect(ctx, allParams[i:end]); err != nil {
 				logger.Log.Error("DbBatch[inspect] flush error: %v", err)
 			}
-			logger.Log.Print(2, "update inspect ok : %d", end-i)
+			logger.Log.Print(1, "update inspect ok : %d", end-i)
 		}
-		logger.Log.Print(2, "inspect flush: %d rows, %d chunks", total, chunks)
+		logger.Log.Print(1, "inspect flush: %d rows, %d chunks", total, chunks)
 
 		//--------------------
 	}
@@ -204,13 +205,13 @@ func (b *DbBatch) runStatsWorker() {
 			if end > total {
 				end = total
 			}
-			logger.Log.Print(2, "insert... : %d", end-i)
+			logger.Log.Print(1, "insert... : %d", end-i)
 			if err := b.dbHnd.InsertContainerStats(ctx, allParams[i:end]); err != nil {
 				logger.Log.Error("DbBatch[stats] flush error: %v", err)
 			}
-			logger.Log.Print(2, "insert ok : %d", end-i)
+			logger.Log.Print(1, "insert ok : %d", end-i)
 		}
-		logger.Log.Print(2, "stats flush: %d rows, %d chunks", total, chunks)
+		logger.Log.Print(1, "stats flush: %d rows, %d chunks", total, chunks)
 	}
 
 	for {
@@ -279,6 +280,68 @@ func (b *DbBatch) runEventWorker() {
 					draining = false
 				}
 			}
+			return
+		}
+	}
+}
+
+func (b *DbBatch) runEventWorker2() {
+	defer b.workerWg.Done()
+
+	batch := make([]ContainerEventItem, 0, maxBatchSize)
+	ticker := time.NewTicker(flushInterval)
+	defer ticker.Stop()
+
+	flush := func() {
+		if len(batch) == 0 {
+			return
+		}
+		// 배치 내 전체 항목을 하나의 params 슬라이스로 합산
+		allParams := make([]db.ContainerEventParams, 0, len(batch)*10)
+		for _, item := range batch {
+			param, _ := toContainerEventParam(item.AgentId, item.HostId, item.Data)
+			allParams = append(allParams, param)
+		}
+		batch = batch[:0]
+
+		// statsChunkSize 단위로 분할 INSERT — placeholder 한계(65535) 초과 방지
+		ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+		defer cancel()
+		total := len(allParams)
+		chunks := (total + eventChunkSize - 1) / eventChunkSize
+		for i := 0; i < total; i += eventChunkSize {
+			end := i + eventChunkSize
+			if end > total {
+				end = total
+			}
+			logger.Log.Print(1, "insert... : %d", end-i)
+			if err := b.dbHnd.InsertContainerEvent2(ctx, allParams[i:end]); err != nil {
+				logger.Log.Error("DbBatch[stats] flush error: %v", err)
+			}
+			logger.Log.Print(1, "insert ok : %d", end-i)
+		}
+		logger.Log.Print(1, "event flush: %d rows, %d chunks", total, chunks)
+	}
+
+	for {
+		select {
+		case item := <-b.eventQ:
+			batch = append(batch, item)
+			if len(batch) >= maxBatchSize {
+				flush()
+			}
+		case <-ticker.C:
+			flush()
+		case <-b.ctx.Done():
+			for draining := true; draining; {
+				select {
+				case item := <-b.eventQ:
+					batch = append(batch, item)
+				default:
+					draining = false
+				}
+			}
+			flush()
 			return
 		}
 	}

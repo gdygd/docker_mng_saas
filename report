@@ -43,3 +43,8 @@ auth-service, agent-service 추가
 - grpc서비스 배치처리시 chucksize 추가
  > stats는 n개 worker로 병렬처리
 - tps테스트 agent 1000 ok, 2500개(tps 4800 정도) 에서는 실시간 처리를 못함.
+
+26.04.02
+- 5000 tps 테스트
+- batch 큐 threshold 적용 큐사아지의 50%
+- batch 큐 모니터링 로거 추가

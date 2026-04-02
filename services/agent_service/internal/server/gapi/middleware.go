@@ -56,14 +56,14 @@ func GrpcServerLogger(ctx context.Context, req any, info *grpc.UnaryServerInfo, 
 	}
 
 	if err != nil {
-		logger.Log.Error("gRPC request Err.. %v", err)
+		// logger.Log.Error("gRPC request Err.. %v", err)
 	}
 
 	// 에러는 무조건 로그
 	if err != nil {
-		logger.Log.Error("gRPC request Err.. %v", err)
-		logger.Log.Error("protocol : grpc, method : %s, status_code : %d status_test : %s duration : %v, received gRPC request",
-			info.FullMethod, int(statusCode), statusCode.String(), duration)
+		// logger.Log.Error("gRPC request Err.. %v", err)
+		// logger.Log.Error("protocol : grpc, method : %s, status_code : %d status_test : %s duration : %v, received gRPC request",
+		// 	info.FullMethod, int(statusCode), statusCode.String(), duration)
 	}
 
 	// 500ms 이상일 때만 로그

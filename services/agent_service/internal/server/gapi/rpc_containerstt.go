@@ -3,12 +3,14 @@ package gapi
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"agent-service/internal/logger"
 
 	pb "agent-service/pb"
 
 	"github.com/gdygd/goglib"
+	"google.golang.org/grpc/codes"
 )
 
 // HOST_ID는 현재 테스트용 상수. 실제 운영 시 req에서 파싱 필요.
@@ -32,10 +34,12 @@ func (server *Server) ContainerState(ctx context.Context, req *pb.AgentMessage) 
 }
 
 func (server *Server) ContainerInfo(ctx context.Context, req *pb.AgentMessage) (*pb.ServerMessage, error) {
-	logger.Log.Print(1, "rpc ContainerInfo agent[%d] host:%v", req.GetAgentid(), req.GetHost())
-
 	agentMsg := parseAgentMessage(req)
-	server.batch.PushContainerInfo(int(req.GetAgentid()), HOST_ID, agentMsg.ListData)
+
+	if !server.batch.TryPushContainerInfo(int(req.GetAgentid()), HOST_ID, agentMsg.ListData) {
+		// return nil, status.Errorf(codes.ResourceExhausted, "too many requests: infoQ pressure exceeded")
+		return nil, fmt.Errorf("[%v] too many requests: infoQ pressure exceeded", codes.ResourceExhausted)
+	}
 
 	return &pb.ServerMessage{}, nil
 }
@@ -44,7 +48,12 @@ func (server *Server) ContainerInspect(ctx context.Context, req *pb.AgentMessage
 	logger.Log.Print(1, "rpc ContainerInspect agent[%d] host:%v", req.GetAgentid(), req.GetHost())
 
 	agentMsg := parseAgentMessage(req)
-	server.batch.PushContainerInspect(int(req.GetAgentid()), HOST_ID, agentMsg.InspectData)
+	// server.batch.PushContainerInspect(int(req.GetAgentid()), HOST_ID, agentMsg.InspectData)
+
+	if !server.batch.TryPushContainerInspect(int(req.GetAgentid()), HOST_ID, agentMsg.InspectData) {
+		// return nil, status.Errorf(codes.ResourceExhausted, "too many requests: infoQ pressure exceeded")
+		return nil, fmt.Errorf("[%v] too many requests: inspectQ pressure exceeded", codes.ResourceExhausted)
+	}
 
 	return &pb.ServerMessage{}, nil
 }

@@ -11,8 +11,13 @@ import (
 )
 
 const (
-	queueSize        = 30000
-	statsWorkerCount = 5 * 3
+	queueSize        = 10000
+	statsWorkerCount = 5
+
+	// infoQThreshold — infoQ 사용량이 이 값 이상이면 신규 요청을 거부한다.
+	// queueSize(10000)의 50% → 버퍼 여유를 남겨 기존 적재 항목은 계속 처리 가능
+	infoQThreshold    = 5000
+	inspectQThreshold = 5000
 )
 
 // DbBatch — 비동기 배치 DB 쓰기 처리기
@@ -48,12 +53,17 @@ func NewDbBatch(ct *container.Container) *DbBatch {
 func (b *DbBatch) Start() {
 	logger.Log.Print(2, "DbBatch workers starting... (stats workers: %d)", statsWorkerCount)
 	b.workerWg.Add(2 + statsWorkerCount + 1) // info + inspect + stats×N + event
+
+	// logging queue count
+	go b.runQueueCountLogger(b.ctx)
+
 	go b.runInfoWorker()
 	go b.runInspectWorker()
 	for i := 0; i < statsWorkerCount; i++ {
 		go b.runStatsWorker()
 	}
-	go b.runEventWorker()
+	// go b.runEventWorker()
+	go b.runEventWorker2()
 }
 
 // Shutdown — ctx 취소 후 워커가 잔여 큐를 소진할 때까지 대기
@@ -76,11 +86,43 @@ func (b *DbBatch) PushContainerInfo(agentId, hostId int, data dto.ContainerListD
 	}
 }
 
+// TryPushContainerInfo — 큐 사용량이 임계치(infoQThreshold) 미만일 때만 push하고 true를 반환.
+func (b *DbBatch) TryPushContainerInfo(agentId, hostId int, data dto.ContainerListData) bool {
+	if len(b.infoQ) >= infoQThreshold {
+		// logger.Log.Error("TryPushContainerInfo: infoQ pressure(%d/%d), reject agent[%d]", len(b.infoQ), queueSize, agentId)
+		return false
+	}
+	select {
+	case b.infoQ <- ContainerInfoItem{AgentId: agentId, HostId: hostId, Data: data}:
+		return true
+	default:
+		// 임계치 체크와 send 사이 경합으로 가득 찼을 때 방어
+		// logger.Log.Error("TryPushContainerInfo: infoQ full on send, reject agent[%d]", agentId)
+		return false
+	}
+}
+
 func (b *DbBatch) PushContainerInspect(agentId, hostId int, data dto.ContainerInspectData) {
 	select {
 	case b.inspectQ <- ContainerInspectItem{AgentId: agentId, HostId: hostId, Data: data}:
 	default:
 		logger.Log.Error("DbBatch: inspect queue full, dropping agent[%d]", agentId)
+	}
+}
+
+// TryPushContainerInfo — 큐 사용량이 임계치(infoQThreshold) 미만일 때만 push하고 true를 반환.
+func (b *DbBatch) TryPushContainerInspect(agentId, hostId int, data dto.ContainerInspectData) bool {
+	if len(b.inspectQ) >= inspectQThreshold {
+		// logger.Log.Error("TryPushContainerInspect: infoQ pressure(%d/%d), reject agent[%d]", len(b.inspectQ), queueSize, agentId)
+		return false
+	}
+	select {
+	case b.inspectQ <- ContainerInspectItem{AgentId: agentId, HostId: hostId, Data: data}:
+		return true
+	default:
+		// 임계치 체크와 send 사이 경합으로 가득 찼을 때 방어
+		// logger.Log.Error("TryPushContainerInspect: infoQ full on send, reject agent[%d]", agentId)
+		return false
 	}
 }
 
