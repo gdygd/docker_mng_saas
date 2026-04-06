@@ -1,0 +1,84 @@
+name: Deploy to production (aws ecr)
+
+on:
+  push:
+    branches: [ "main" ]  
+
+jobs:
+  deploy:
+    name: Build image
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      # 2. AWS 인증
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      # 3. ECR 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 4. Docker Build & Push
+      - name: Build agent-service
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/agent-service:${{ github.sha }} \
+            -t $ECR_REGISTRY/agent-service:latest \
+            ./services/agent_service
+
+      - name: Build auth-service
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/auth-service:${{ github.sha }} \
+            -t $ECR_REGISTRY/auth-service:latest \
+            ./services/auth_service
+
+      - name: Build api-gateway
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/api-gateway:${{ github.sha }} \
+            -t $ECR_REGISTRY/api-gateway:latest \
+            ./services/api-gateway
+
+      - name: Push to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          for svc in docker-service auth-service api-gateway; do
+            docker push $ECR_REGISTRY/${svc}:${{ github.sha }}
+            docker push $ECR_REGISTRY/${svc}:latest
+          done
+
+      - name: Verify pushed images (ECR)
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          for svc in docker-service auth-service api-gateway; do
+            echo "▶ Checking ${svc} on ECR..."
+
+            docker rmi $ECR_REGISTRY/${svc}:latest 2>/dev/null || true
+            docker rmi $ECR_REGISTRY/${svc}:${{ github.sha }} 2>/dev/null || true
+
+            docker pull $ECR_REGISTRY/${svc}:latest \
+              && echo "✅ ${svc}:latest OK" \
+              || (echo "❌ ${svc}:latest FAILED" && exit 1)
+
+            docker pull $ECR_REGISTRY/${svc}:${{ github.sha }} \
+              && echo "✅ ${svc}:${{ github.sha }} OK" \
+              || (echo "❌ ${svc}:${{ github.sha }} FAILED" && exit 1)
+          done    
