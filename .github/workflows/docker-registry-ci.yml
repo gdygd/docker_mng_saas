@@ -68,7 +68,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          for svc in docker-service auth-service api-gateway; do
+          for svc in agent-service auth-service api-gateway; do
             echo "▶ Checking ${svc} on ECR..."
 
             docker rmi $ECR_REGISTRY/${svc}:latest 2>/dev/null || true
