@@ -48,3 +48,6 @@ auth-service, agent-service 추가
 - 5000 tps 테스트
 - batch 큐 threshold 적용 큐사아지의 50%
 - batch 큐 모니터링 로거 추가
+
+26.04.08
+- docker-compose 추가(deployment)

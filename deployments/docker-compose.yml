@@ -1,0 +1,97 @@
+# ===========================================
+# Docker Compose - Production (OPR Mode)
+# ===========================================
+
+services:
+  # -----------------------------------------
+  # API Gateway
+  # -----------------------------------------
+  api-gateway:
+    image: ${REGISTRY_URL}/api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "19081:19081"
+    environment:
+      - DB_DRIVER=mariadb
+      - DB_ADDRESS=docker_mariadb
+      - DB_PORT=3306
+      - DB_USER=dev
+      - DB_PASSWD=dev
+      - DB_NAME=docker
+      - HTTP_SERVER_ADDRESS=0.0.0.0:19081
+      - HTTP_ALLOW_ORIGINS=http://192.168.2.119:5173,http://10.1.0.119:5173
+      - TOKEN_SYMMETRIC_KEY=12345678901234567890123456789012
+      - ACCESS_TOKEN_DURATION=15m
+      - REFRESH_TOKEN_DURATION=24h
+      - DEBUG_LV=1
+
+      # 개발 모드 (MODE=0): localhost 사용
+      - AUTH_SERVICE_URL_DEV=http://localhost:19082
+      - AGENT_SERVICE_URL_DEV=http://localhost:19083
+
+      # 운영 모드 (MODE=1): 컨테이너 서비스명 사용
+      - AUTH_SERVICE_URL_OPR=http://auth-service:19082
+      - AGENT_SERVICE_URL_OPR=http://agent-service:19083
+
+    command: ["-MODE=1"]  # 운영 모드
+    depends_on:
+      - auth-service
+      - agent-service
+    networks:
+      - docker-mng
+    restart: unless-stopped
+
+  # -----------------------------------------
+  # Auth Service
+  # -----------------------------------------
+  auth-service:
+    image: ${REGISTRY_URL}/auth-service:latest
+    container_name: auth-service
+    ports:
+      - "19090:19090"      # REST API
+      - "19190:19190"      # gRPC
+      - "19091:19091"      # gRPC Gateway
+    environment:
+      - DB_DRIVER=mariadb
+      - DB_ADDRESS=docker_mariadb
+      - DB_PORT=3306
+      - DB_USER=dev
+      - DB_PASSWD=dev
+      - DB_NAME=docker
+      - HTTP_SERVER_ADDRESS=0.0.0.0:19082
+      - GRPC_SERVER_ADDRESS=0.0.0.0:19190
+      - GRPC_GW_SERVER_ADDRESS=0.0.0.0:19091
+      - DEBUG_LV=2
+    networks:
+      - docker-mng
+    restart: unless-stopped
+
+  # -----------------------------------------
+  # Docker Service
+  # -----------------------------------------
+  agent-service:
+    image: ${REGISTRY_URL}/agent-service:latest
+    container_name: agent-service
+    ports:
+      - "19083:19083"
+      - "19192:19192"
+    environment:
+      - DB_DRIVER=mariadb
+      - DB_ADDRESS=docker_mariadb
+      - DB_PORT=3306
+      - DB_USER=dev
+      - DB_PASSWD=dev
+      - DB_NAME=docker
+      - HTTP_SERVER_ADDRESS=0.0.0.0:19083
+      - GRPC_SERVER_ADDRESS=0.0.0.0:19192
+      - DEBUG_LV=2
+    networks:
+      - docker-mng
+    restart: unless-stopped
+
+# -----------------------------------------
+# Networks
+# -----------------------------------------
+networks:
+  docker-mng:
+    external: true

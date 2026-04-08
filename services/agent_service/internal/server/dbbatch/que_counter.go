@@ -18,7 +18,7 @@ func (b *DbBatch) runQueueCountLogger(ctx context.Context) {
 			ispQcnt := len(b.inspectQ)
 			statsQcnt := len(b.statsQ)
 			evtQcnt := len(b.eventQ)
-			logger.Log.Print(3, "#############>> [%s] info : %d, inspect : %d, stats : %d, event : %d",
+			logger.Log.Print(1, "#############>> [%s] info : %d, inspect : %d, stats : %d, event : %d",
 				t.Format("15:04:05"), infoQcnt, ispQcnt, statsQcnt, evtQcnt)
 
 		case <-ctx.Done():
