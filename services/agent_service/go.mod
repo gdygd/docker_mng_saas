@@ -3,7 +3,7 @@ module agent-service
 go 1.25.0
 
 require (
-	github.com/gdygd/goglib v1.0.6
+	github.com/gdygd/goglib v1.0.7
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-sql-driver/mysql v1.9.3
