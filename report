@@ -55,3 +55,4 @@ auth-service, agent-service 추가
 26.04.13
 - 미들웨어에 heartbeat제외
 - goglib 1.0.7로 update (로깅시 파일 write 여부 추가)
+- 파일로깅 비활성화(stdout만)
