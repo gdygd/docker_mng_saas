@@ -51,3 +51,6 @@ auth-service, agent-service 추가
 
 26.04.08
 - docker-compose 추가(deployment)
+
+26.04.13
+- 미들웨어에 heartbeat제외

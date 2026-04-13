@@ -28,6 +28,8 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		if strings.HasPrefix(path, "/auth/login") ||
 			strings.HasPrefix(path, "/auth/refresh") ||
 			strings.HasPrefix(path, "/auth/user") ||
+			strings.HasPrefix(path, "/heartbeat") ||
+			strings.HasPrefix(path, "/terminate") ||
 			strings.HasPrefix(path, "/public") {
 			ctx.Next()
 			return
