@@ -56,3 +56,6 @@ auth-service, agent-service 추가
 - 미들웨어에 heartbeat제외
 - goglib 1.0.7로 update (로깅시 파일 write 여부 추가)
 - 파일로깅 비활성화(stdout만)
+
+26.04.14
+-api-gateway cors url 버그 수정(테스트 코드로 동작되고 있었음)
