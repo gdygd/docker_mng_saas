@@ -180,6 +180,8 @@ func (server *Server) setupRouter() {
 	// router := gin.Default()
 	router := gin.New()
 	addresses := strings.Split(server.config.AllowOrigins, ",")
+
+	router.Use(Logger())
 	router.Use(corsMiddleware(addresses))
 	router.Use(authMiddleware(server.tokenMaker))
 

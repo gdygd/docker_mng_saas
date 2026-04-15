@@ -20,10 +20,43 @@ const (
 	authorizationPayloadKey = "authorization_payload"
 )
 
+func Logger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 요청 시작 시간
+		start := time.Now()
+
+		// 요청 정보 미리 저장
+		path := c.Request.URL.Path
+		raw := c.Request.URL.RawQuery
+		method := c.Request.Method
+		clientIP := c.ClientIP()
+		userAgent := c.Request.UserAgent()
+
+		// 다음 미들웨어/핸들러 실행
+		c.Next()
+
+		// 응답 이후 정보
+		end := time.Now()
+		latency := end.Sub(start)
+
+		statusCode := c.Writer.Status()
+		bodySize := c.Writer.Size()
+
+		if raw != "" {
+			path = path + "?" + raw
+		}
+
+		// 로그 출력 (네 로거로 교체 가능)
+		// logger.Log.Printf(...)
+		logger.Log.Print(3, "request : %s, %s, %d, %v, %s, %s, %d ",
+			method, path, statusCode, latency, clientIP, userAgent, bodySize)
+	}
+}
+
 func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		path := ctx.Request.URL.Path
-		logger.Log.Print(2, " request url : %s", ctx.Request.URL.String())
+		// logger.Log.Print(2, " request url : %s", ctx.Request.URL.String())
 
 		if strings.HasPrefix(path, "/auth/login") ||
 			strings.HasPrefix(path, "/auth/refresh") ||
@@ -85,7 +118,7 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 func corsMiddleware(origins []string) gin.HandlerFunc {
 	fmt.Printf("cors : %v \n", origins)
 	return cors.New(cors.Config{
-		AllowOrigins: origins,
+		AllowOrigins: origins, //	https://d2jrjih6s0buhr.cloudfront.net
 		// AllowOrigins: []string{"http://localhost:3000", "http://localhost:3001", "http://10.1.0.119:8082", "http://10.1.1.164:8082", "http://theroad.web.com:8082"},
 		// AllowOrigins: []string{"http://10.1.0.119:5173", "http://192.168.2.119:5173", "http://192.168.2.119:9081", "http://localhost:3000"},
 		AllowMethods: []string{
