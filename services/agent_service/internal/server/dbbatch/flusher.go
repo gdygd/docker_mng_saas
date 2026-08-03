@@ -205,11 +205,17 @@ func (b *DbBatch) runStatsWorker() {
 			if end > total {
 				end = total
 			}
-			logger.Log.Print(1, "insert... : %d", end-i)
+			logger.Log.Print(1, "insert statslog... : %d", end-i)
 			if err := b.dbHnd.InsertContainerStats(ctx, allParams[i:end]); err != nil {
+				logger.Log.Error("DbBatch[stats log] flush error: %v", err)
+			}
+			logger.Log.Print(1, "insert statslog ok : %d", end-i)
+
+			logger.Log.Print(1, "insert stats... : %d", end-i)
+			if err := b.dbHnd.CreateContainerStats(ctx, allParams[i:end]); err != nil {
 				logger.Log.Error("DbBatch[stats] flush error: %v", err)
 			}
-			logger.Log.Print(1, "insert ok : %d", end-i)
+			logger.Log.Print(1, "insert stats ok : %d", end-i)
 		}
 		logger.Log.Print(1, "stats flush: %d rows, %d chunks", total, chunks)
 	}

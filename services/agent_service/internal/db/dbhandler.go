@@ -13,6 +13,7 @@ type DbHandler interface {
 	CreateContainerInfo(ctx context.Context, params []ContainerInfoParams) error
 	UpsertContainerInspect(ctx context.Context, params []ContainerInspectParams) error
 	InsertContainerStats(ctx context.Context, params []ContainerStatsParams) error
+	CreateContainerStats(ctx context.Context, params []ContainerStatsParams) error
 	InsertContainerEvent(ctx context.Context, param ContainerEventParams) error
 	InsertContainerEvent2(ctx context.Context, params []ContainerEventParams) error
 
